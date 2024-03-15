@@ -6,25 +6,12 @@ import (
 	"strconv"
 
 	"github.com/jackc/pgconn"
+	"github.com/jackc/pgx/v5"
 	entity "github.com/wonderf00l/filmLib/internal/entity/auth"
 	errPkg "github.com/wonderf00l/filmLib/internal/errors"
+
+	repo "github.com/wonderf00l/filmLib/internal/repository"
 )
-
-/*func convertErrorPostgres(err error) error {
-
-	switch err {
-	case context.DeadlineExceeded:
-		return &errPkg.ErrTimeoutExceeded{}
-	}
-
-	var pgErr *pgconn.PgError
-	if errors.As(err, &pgErr) {
-		switch pgErr.SQLState() {
-		}
-	}
-
-	return &errPkg.InternalError{Message: err.Error(), Layer: string(errPkg.Repo)}
-}*/
 
 // convert err redis
 
@@ -33,69 +20,25 @@ import (
 // вмесете с username | pass также можно ввести секретный код --> он прокидывается в service
 // параметр role устанавливается в service, repo просто работает со структурой
 
-/*
-type Repository interface {
-	AddProfile(profile entity.Profile) error
-	CheckProfileExistence(username, password string) bool
-	GetUserIdBySession(sessKey string) int
-	DeleteSession(sessKey string) error
-}
-*/
-
-/*
 func convertErrorPostgres(err error) error {
-
-	switch err {
-	case context.DeadlineExceeded:
-		return &errPkg.ErrTimeoutExceeded{}
+	switch {
+	case errors.Is(err, pgx.ErrNoRows):
+		return &ProfileNotFoundError{}
+	case errors.Is(err, context.DeadlineExceeded):
+		return &errPkg.TimeoutExceededError{}
 	}
 
 	var pgErr *pgconn.PgError
 	if errors.As(err, &pgErr) {
 		switch pgErr.SQLState() {
-		case strconv.Itoa(23505):
-			return &subRepo.ErrSubscriptionAlreadyExist{}
-		}
-	}
-	return &errPkg.InternalError{Message: err.Error(), Layer: string(errPkg.Repo)}
-}
-
-func (r *subscriptionRepoPG) CreateSubscriptionUser(ctx context.Context, from, to int) error {
-	tx, err := r.db.Begin(ctx)
-	if err != nil {
-		return convertErrorPostgres(err)
-	}
-
-	if _, err = tx.Exec(ctx, CreateSubscriptionUser, from, to); err != nil {
-		if err := tx.Rollback(ctx); err != nil {
-			return convertErrorPostgres(err)
-		}
-		return convertErrorPostgres(err)
-	}
-
-	if err = tx.Commit(ctx); err != nil {
-		return convertErrorPostgres(err)
-	}
-	return nil
-}
-*/
-
-func convertErrorPostgres(err error) error {
-	switch err {
-	case context.DeadlineExceeded:
-		return &errPkg.ErrTimeoutExceeded{}
-	}
-
-	var pgErr *pgconn.PgError
-	if errors.As(err, &pgErr) {
-		switch pgErr.SQLState() {
-		case strconv.Itoa(23505):
+		case strconv.Itoa(repo.PostgresUniqueViolation):
 			return &ProfileAlreadyExistsError{}
 		}
 	}
 	return &errPkg.InternalError{Message: err.Error(), Layer: string(errPkg.Repo)}
 }
 
+// reg
 func (r *authRepo) AddProfile(ctx context.Context, profile entity.Profile) error {
 	tx, err := r.db.Begin(ctx)
 	if err != nil {
@@ -114,4 +57,13 @@ func (r *authRepo) AddProfile(ctx context.Context, profile entity.Profile) error
 	}
 
 	return nil
+}
+
+// login post
+func (r *authRepo) GetProfile(ctx context.Context, username string) (*entity.Profile, error) {
+	profile := &entity.Profile{}
+	if err := r.db.QueryRow(ctx, SelectProfileByUsername, username).Scan(&profile.ID, &profile.Username, &profile.Password); err != nil {
+		return nil, convertErrorPostgres(err)
+	}
+	return profile, nil
 }

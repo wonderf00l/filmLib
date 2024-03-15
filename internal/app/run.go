@@ -17,7 +17,6 @@ var (
 )
 
 func Run(ctx context.Context, logger *zap.SugaredLogger, cfgs *configs.Configs) error {
-
 	// create handler
 	// create router
 	// init srv, create srv
@@ -56,7 +55,7 @@ func Run(ctx context.Context, logger *zap.SugaredLogger, cfgs *configs.Configs) 
 	shutdownCtx, cancel := context.WithTimeout(context.Background(), shutdownTimeout)
 	defer cancel()
 
-	if err := server.Shutdown(shutdownCtx); err != nil {
+	if err = server.Shutdown(shutdownCtx); err != nil {
 		return &runError{inner: fmt.Errorf("shutdown http server: %w", err)}
 	}
 

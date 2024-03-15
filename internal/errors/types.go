@@ -27,13 +27,13 @@ type DeclaredError interface {
 }
 
 // general application errors
-type ErrNotAuthenticated struct{}
+type NotAuthenticatedError struct{}
 
-func (e *ErrNotAuthenticated) Error() string {
+func (e *NotAuthenticatedError) Error() string {
 	return "Auth required"
 }
 
-func (e *ErrNotAuthenticated) Type() Type {
+func (e *NotAuthenticatedError) Type() Type {
 	return ErrNoAuth
 }
 
@@ -46,13 +46,13 @@ func (e *InternalError) Error() string {
 	return fmt.Sprintf("Internal error occured. Message: '%s'. Layer: %s", e.Message, e.Layer)
 }
 
-type ErrTimeoutExceeded struct {
+type TimeoutExceededError struct {
 }
 
-func (e *ErrTimeoutExceeded) Error() string {
+func (e *TimeoutExceededError) Error() string {
 	return "timeout exceeded"
 }
 
-func (e *ErrTimeoutExceeded) Type() Type {
+func (e *TimeoutExceededError) Type() Type {
 	return ErrTimeout
 }
