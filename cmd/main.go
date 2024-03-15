@@ -21,7 +21,7 @@ func main() {
 
 	defer func() {
 		if err = serviceLogger.Sync(); err != nil {
-			log.Fatal("Sync service logger: ", err)
+			log.Println("Sync service logger: ", err)
 		}
 	}()
 

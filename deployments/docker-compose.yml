@@ -10,7 +10,7 @@ services:
       - ../db/migrations:/docker-entrypoint-initdb.d
       - 'postgres_storage:/var/lib/postgresql/data'
     ports:
-      - 5432:5432
+      - 5433:5432
     healthcheck:
       test: ["CMD", "pg_isready"]
       interval: 5s
@@ -43,6 +43,7 @@ services:
      - ../.env
     environment:
       - POSTGRES_HOST=postgres
+      - POSTGRES_PORT=5432
       - REDIS_HOST=redis
     depends_on:
       postgres:
