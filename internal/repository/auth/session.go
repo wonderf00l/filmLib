@@ -13,7 +13,7 @@ import (
 func convertErrorRedis(err error) error {
 	switch {
 	case errors.Is(err, redis.Nil):
-		return &UserNotAuthenticatedError{}
+		return &SessionNotFoundError{}
 	case errors.Is(err, context.DeadlineExceeded):
 		return &errPkg.TimeoutExceededError{}
 	}

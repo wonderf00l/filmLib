@@ -7,7 +7,7 @@ import (
 
 	"github.com/joho/godotenv"
 	"github.com/wonderf00l/filmLib/internal/configs"
-	"github.com/wonderf00l/filmLib/internal/pkg/logger"
+	"github.com/wonderf00l/filmLib/pkg/logger"
 	"go.uber.org/zap"
 )
 

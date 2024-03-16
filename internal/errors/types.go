@@ -27,6 +27,19 @@ type DeclaredError interface {
 }
 
 // general application errors
+
+type InvalidRoleForActionError struct {
+	Need string
+}
+
+func (e *InvalidRoleForActionError) Error() string {
+	return fmt.Sprintf("your role doesn't allow you to do this action, should be %s\n", e.Need)
+}
+
+func (e *InvalidRoleForActionError) Type() Type {
+	return ErrNoAccess
+}
+
 type NotAuthenticatedError struct{}
 
 func (e *NotAuthenticatedError) Error() string {

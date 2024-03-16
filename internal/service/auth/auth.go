@@ -46,7 +46,7 @@ func (s *authService) CheckCredentials(ctx context.Context, username, password s
 	session := &entity.Session{
 		Key:     string(cookieString),
 		UserID:  profile.ID,
-		Expires: time.Now().UTC().Add(SessionLifeTime),
+		Expires: time.Now().UTC().Add(sessionLifeTime),
 	}
 	if err = s.repo.AddSession(ctx, session); err != nil {
 		return nil, err
@@ -55,17 +55,17 @@ func (s *authService) CheckCredentials(ctx context.Context, username, password s
 	return session, nil
 }
 
-func (s *authService) Logout(ctx context.Context, sessKey string) error {
-	if err := s.repo.DeleteSessionByKey(ctx, sessKey); err != nil {
-		return err
-	}
-	return nil
-}
-
 func (s *authService) GetUserSession(ctx context.Context, key string) (*entity.Session, error) {
 	sess, err := s.repo.GetSessionByKey(ctx, key)
 	if err != nil {
 		return nil, err
 	}
 	return sess, nil
+}
+
+func (s *authService) Logout(ctx context.Context, sessKey string) error {
+	if err := s.repo.DeleteSessionByKey(ctx, sessKey); err != nil {
+		return err
+	}
+	return nil
 }

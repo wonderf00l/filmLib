@@ -1,6 +1,8 @@
 package logger
 
-import "go.uber.org/zap"
+import (
+	"go.uber.org/zap"
+)
 
 func New(config zap.Config) (*zap.SugaredLogger, error) {
 	logger, err := config.Build()

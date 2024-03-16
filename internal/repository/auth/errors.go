@@ -22,12 +22,12 @@ func (e *ProfileNotFoundError) Type() errPkg.Type {
 	return errPkg.ErrNotFound
 }
 
-type UserNotAuthenticatedError struct{}
+type SessionNotFoundError struct{}
 
-func (e *UserNotAuthenticatedError) Error() string {
-	return "user session not found"
+func (e *SessionNotFoundError) Error() string {
+	return "no such session"
 }
 
-func (e *UserNotAuthenticatedError) Type() errPkg.Type {
+func (e *SessionNotFoundError) Type() errPkg.Type {
 	return errPkg.ErrNoAuth
 }

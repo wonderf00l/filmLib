@@ -9,7 +9,7 @@ import (
 
 type Service interface {
 	AssignRole(ctx context.Context, token string) entity.Role
-	GetUserRole(ctx context.Context, userID int) entity.Role
+	GetUserRole(ctx context.Context, userID int) (entity.Role, error)
 }
 
 type roleService struct {
@@ -35,7 +35,7 @@ func (r *roleService) AssignRole(_ context.Context, token string) entity.Role {
 	return role
 }
 
-func (r *roleService) CheckUserRole(ctx context.Context, userID int) (entity.Role, error) {
+func (r *roleService) GetUserRole(ctx context.Context, userID int) (entity.Role, error) {
 	role, err := r.repo.GetUserRole(ctx, userID)
 	if err != nil {
 		return 0, err

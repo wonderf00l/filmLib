@@ -13,13 +13,6 @@ import (
 	repo "github.com/wonderf00l/filmLib/internal/repository"
 )
 
-// convert err redis
-
-// sql builder?
-
-// вмесете с username | pass также можно ввести секретный код --> он прокидывается в service
-// параметр role устанавливается в service, repo просто работает со структурой
-
 func convertErrorPostgres(err error) error {
 	switch {
 	case errors.Is(err, pgx.ErrNoRows):
