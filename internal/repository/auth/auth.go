@@ -52,10 +52,38 @@ func (r *authRepo) AddProfile(ctx context.Context, profile entity.Profile) error
 	return nil
 }
 
+func (r *authRepo) UpdateProfile(ctx context.Context, profile entity.Profile) error {
+	tx, err := r.db.Begin(ctx)
+	if err != nil {
+		return convertErrorPostgres(err)
+	}
+
+	if _, err := r.db.Exec(ctx, UpdateProfile, profile.Username, profile.Password, profile.Role, profile.ID); err != nil {
+		if err = tx.Rollback(ctx); err != nil {
+			return convertErrorPostgres(err)
+		}
+		return convertErrorPostgres(err)
+	}
+
+	if err = tx.Commit(ctx); err != nil {
+		return convertErrorPostgres(err)
+	}
+
+	return nil
+}
+
 // login post
 func (r *authRepo) GetProfile(ctx context.Context, username string) (*entity.Profile, error) {
 	profile := &entity.Profile{}
 	if err := r.db.QueryRow(ctx, SelectProfileByUsername, username).Scan(&profile.ID, &profile.Username, &profile.Password); err != nil {
+		return nil, convertErrorPostgres(err)
+	}
+	return profile, nil
+}
+
+func (r *authRepo) GetProfileByID(ctx context.Context, id int) (*entity.Profile, error) {
+	profile := &entity.Profile{}
+	if err := r.db.QueryRow(ctx, SelectProfileByID, id).Scan(&profile.ID, &profile.Username, &profile.Password); err != nil {
 		return nil, convertErrorPostgres(err)
 	}
 	return profile, nil

@@ -18,6 +18,10 @@ type roleRepo struct {
 	db *pgxpool.Pool
 }
 
+func New(db *pgxpool.Pool) *roleRepo {
+	return &roleRepo{db: db}
+}
+
 func convertErrorPostgres(err error) error {
 	switch {
 	case errors.Is(err, context.DeadlineExceeded):

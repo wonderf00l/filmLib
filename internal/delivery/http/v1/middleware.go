@@ -27,7 +27,6 @@ const (
 	roleKey   = "role"
 
 	AuthMW MiddlewareType = "auth"
-	roleMW MiddlewareType = "setRole"
 )
 
 func getLoggerFromCtx(ctx context.Context) (*zap.SugaredLogger, error) {
@@ -44,7 +43,7 @@ func getLoggerFromCtx(ctx context.Context) (*zap.SugaredLogger, error) {
 	role - check role - ok or noAccess
 */
 
-func recoverMiddleware(next http.Handler) http.Handler {
+func RecoverMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		defer func() {
 			if err := recover(); err != nil {
@@ -57,7 +56,7 @@ func recoverMiddleware(next http.Handler) http.Handler {
 	})
 }
 
-func loggingMiddleware(serviceLogger *zap.SugaredLogger) Middleware {
+func LoggingMiddleware(serviceLogger *zap.SugaredLogger) Middleware {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			reqID := uuid.NewString()
@@ -100,7 +99,7 @@ func ctxWithAuthParams(ctx context.Context, sessKey string, userID int) context.
 	return withParams
 }
 
-func authMiddleware(s auth.Service) Middleware {
+func AuthMiddleware(s auth.Service) Middleware {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			if cookie, err := r.Cookie(CookieKey); err == nil {
@@ -124,7 +123,7 @@ func authMiddleware(s auth.Service) Middleware {
 	}
 }
 
-func setRoleMiddleware(role entityRole.Role) Middleware {
+func SetRoleMiddleware(role entityRole.Role) Middleware {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			r = r.WithContext(context.WithValue(r.Context(), roleKey, role))
@@ -136,18 +135,18 @@ func setRoleMiddleware(role entityRole.Role) Middleware {
 // extract userID - ok or no MW
 // find role - role or no such user
 // check rights - ok or noAccess
-func checkRoleMiddleware(s role.Service) Middleware {
+func CheckRoleMiddleware(s role.Service) Middleware {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			userID, ok := r.Context().Value(UserIDKey).(int)
+			needRole, ok := r.Context().Value(roleKey).(entityRole.Role)
 			if !ok {
-				ResponseError(w, r, &MiddlewareNotSetError{MWTypes: []MiddlewareType{AuthMW}})
+				next.ServeHTTP(w, r)
 				return
 			}
 
-			needRole, ok := r.Context().Value(roleKey).(entityRole.Role)
+			userID, ok := r.Context().Value(UserIDKey).(int)
 			if !ok {
-				ResponseError(w, r, &MiddlewareNotSetError{MWTypes: []MiddlewareType{roleMW}})
+				ResponseError(w, r, &MiddlewareNotSetError{MWTypes: []MiddlewareType{AuthMW}})
 				return
 			}
 

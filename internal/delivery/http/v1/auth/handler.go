@@ -13,26 +13,10 @@ type AuthHandlerHTTP struct {
 	serv service.Service
 }
 
-func NewHandler(s service.Service) *AuthHandlerHTTP {
-	return &AuthHandlerHTTP{serv: s}
+func New(s service.Service) AuthHandlerHTTP {
+	return AuthHandlerHTTP{serv: s}
 }
 
-// signup
-// login post
-// logout
-
-// username pass token
-
-/*
- 1. check content type
- 2. try to unmarshal
- 3. validate unmarshaled data
-    username,password - content, len
- 4. call service
- 5. response
-*/
-
-// change credentials
 func (h *AuthHandlerHTTP) Signup(w http.ResponseWriter, r *http.Request) {
 	if contentType := r.Header.Get("Content-Type"); contentType != delivery.ApplicationJson {
 		delivery.ResponseError(w, r, &delivery.InvalidContentTypeError{PreferredType: delivery.ApplicationJson})
@@ -54,7 +38,7 @@ func (h *AuthHandlerHTTP) Signup(w http.ResponseWriter, r *http.Request) {
 	profile, roleToken := signupDataDeliveryToService(data)
 	if err := h.serv.Signup(r.Context(), profile, roleToken); err != nil {
 		delivery.ResponseError(w, r, err)
-	} else if err := delivery.ResponseOk(http.StatusOK, w, "registered profile successfully", nil); err != nil {
+	} else if err = delivery.ResponseOk(http.StatusOK, w, "registered profile successfully", nil); err != nil {
 		delivery.ResponseError(w, r, err)
 	}
 }
@@ -78,7 +62,7 @@ func (h *AuthHandlerHTTP) Login(w http.ResponseWriter, r *http.Request) {
 	}
 
 	credentials := loginDataDeliveryToService(data)
-	session, err := h.serv.CheckCredentials(r.Context(), credentials.Username, credentials.Password)
+	session, err := h.serv.CreateSessionForUser(r.Context(), credentials.Username, credentials.Password)
 	if err != nil {
 		delivery.ResponseError(w, r, err)
 		return
@@ -98,7 +82,6 @@ func (h *AuthHandlerHTTP) Login(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-// under MW
 func (h *AuthHandlerHTTP) Logout(w http.ResponseWriter, r *http.Request) {
 	sessKey, ok := r.Context().Value(delivery.CookieKey).(string)
 	if !ok {
@@ -116,6 +99,51 @@ func (h *AuthHandlerHTTP) Logout(w http.ResponseWriter, r *http.Request) {
 	http.SetCookie(w, cookie)
 
 	if err := delivery.ResponseOk(http.StatusOK, w, "logout successfuly", nil); err != nil {
+		delivery.ResponseError(w, r, err)
+	}
+}
+
+func (h *AuthHandlerHTTP) UpdateProfileData(w http.ResponseWriter, r *http.Request) {
+	if contentType := r.Header.Get("Content-Type"); contentType != delivery.ApplicationJson {
+		delivery.ResponseError(w, r, &delivery.InvalidContentTypeError{PreferredType: delivery.ApplicationJson})
+		return
+	}
+
+	data := updateData{}
+	if err := json.NewDecoder(r.Body).Decode(&data); err != nil {
+		delivery.ResponseError(w, r, &delivery.InvalidBodyError{})
+		return
+	}
+	defer r.Body.Close()
+
+	if err := data.Validate(); err != nil {
+		delivery.ResponseError(w, r, err)
+		return
+	}
+
+	userID, ok := r.Context().Value(delivery.UserIDKey).(int)
+	if !ok {
+		delivery.ResponseError(w, r, &delivery.MiddlewareNotSetError{MWTypes: []delivery.MiddlewareType{delivery.AuthMW}})
+		return
+	}
+
+	profile, err := h.serv.CheckCredentialsByUserID(r.Context(), userID, *data.OldPassword)
+	if err != nil {
+		delivery.ResponseError(w, r, err)
+		return
+	}
+
+	updatedProfile, newRoleToken := updateDataDeliveryToService(data)
+	if updatedProfile.Username == "" {
+		updatedProfile.Username = profile.Username
+	}
+	if updatedProfile.Password == "" {
+		updatedProfile.Password = profile.Password
+	}
+
+	if err := h.serv.UpdateProfileData(r.Context(), updatedProfile, newRoleToken); err != nil {
+		delivery.ResponseError(w, r, err)
+	} else if err = delivery.ResponseOk(http.StatusOK, w, "Updated profile data successfully", nil); err != nil {
 		delivery.ResponseError(w, r, err)
 	}
 }

@@ -10,15 +10,22 @@ import (
 
 type Repository interface {
 	AddProfile(ctx context.Context, profile entity.Profile) error
+	UpdateProfile(ctx context.Context, profile entity.Profile) error
 	GetProfile(ctx context.Context, username string) (*entity.Profile, error)
+	GetProfileByID(ctx context.Context, id int) (*entity.Profile, error)
 	AddSession(ctx context.Context, session *entity.Session) error
 	GetSessionByKey(ctx context.Context, key string) (*entity.Session, error)
 	DeleteSessionByKey(ctx context.Context, key string) error
 }
 
-// var _ Repository = (*authRepo)(nil)
-
 type authRepo struct {
-	db             pgxpool.Pool
+	db             *pgxpool.Pool
 	sessionStorage *redis.Client
+}
+
+func New(db *pgxpool.Pool, sessStorage *redis.Client) *authRepo {
+	return &authRepo{
+		db:             db,
+		sessionStorage: sessStorage,
+	}
 }

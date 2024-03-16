@@ -10,7 +10,7 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
-func (s *authService) Signup(ctx context.Context, profile entity.Profile, roleToken string) error {
+func (s *authService) assignProfileData(ctx context.Context, profile *entity.Profile, roleToken string) error {
 	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(profile.Password), bcrypt.DefaultCost)
 	if err != nil {
 		return err
@@ -19,22 +19,37 @@ func (s *authService) Signup(ctx context.Context, profile entity.Profile, roleTo
 
 	hash := sha256.New()
 	profile.Role = uint8(s.roleManager.AssignRole(ctx, string(hash.Sum([]byte(roleToken)))))
+	return nil
+}
 
-	if err = s.repo.AddProfile(ctx, profile); err != nil {
+func (s *authService) Signup(ctx context.Context, profile entity.Profile, roleToken string) error {
+	if err := s.assignProfileData(ctx, &profile, roleToken); err != nil {
+		return err
+	}
+
+	if err := s.repo.AddProfile(ctx, profile); err != nil {
 		return err
 	}
 
 	return nil
 }
 
-func (s *authService) CheckCredentials(ctx context.Context, username, password string) (*entity.Session, error) {
-	profile, err := s.repo.GetProfile(ctx, username)
-	if err != nil {
-		return nil, err
+func (s *authService) UpdateProfileData(ctx context.Context, profile entity.Profile, roleToken string) error {
+	if err := s.assignProfileData(ctx, &profile, roleToken); err != nil {
+		return err
 	}
 
-	if err = bcrypt.CompareHashAndPassword([]byte(profile.Password), []byte(password)); err != nil {
-		return nil, &InvalidPasswordError{}
+	if err := s.repo.UpdateProfile(ctx, profile); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (s *authService) CreateSessionForUser(ctx context.Context, username, password string) (*entity.Session, error) {
+	profile, err := s.CheckCredentialsByUsername(ctx, username, password)
+	if err != nil {
+		return nil, err
 	}
 
 	cookieString := make([]byte, cookieStringLen)
@@ -53,6 +68,32 @@ func (s *authService) CheckCredentials(ctx context.Context, username, password s
 	}
 
 	return session, nil
+}
+
+func (s *authService) CheckCredentialsByUsername(ctx context.Context, username, password string) (*entity.Profile, error) {
+	profile, err := s.repo.GetProfile(ctx, username)
+	if err != nil {
+		return nil, err
+	}
+
+	if err = bcrypt.CompareHashAndPassword([]byte(profile.Password), []byte(password)); err != nil {
+		return nil, &InvalidPasswordError{}
+	}
+
+	return profile, nil
+}
+
+func (s *authService) CheckCredentialsByUserID(ctx context.Context, userID int, password string) (*entity.Profile, error) {
+	profile, err := s.repo.GetProfileByID(ctx, userID)
+	if err != nil {
+		return nil, err
+	}
+
+	if err = bcrypt.CompareHashAndPassword([]byte(profile.Password), []byte(password)); err != nil {
+		return nil, &InvalidPasswordError{}
+	}
+
+	return profile, nil
 }
 
 func (s *authService) GetUserSession(ctx context.Context, key string) (*entity.Session, error) {
