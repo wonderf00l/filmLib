@@ -5,8 +5,8 @@ import (
 	"errors"
 	"strconv"
 
-	"github.com/jackc/pgconn"
 	"github.com/jackc/pgx/v5"
+	"github.com/jackc/pgx/v5/pgconn"
 	entity "github.com/wonderf00l/filmLib/internal/entity/auth"
 	errPkg "github.com/wonderf00l/filmLib/internal/errors"
 
@@ -31,7 +31,6 @@ func convertErrorPostgres(err error) error {
 	return &errPkg.InternalError{Message: err.Error(), Layer: string(errPkg.Repo)}
 }
 
-// reg
 func (r *authRepo) AddProfile(ctx context.Context, profile entity.Profile) error {
 	tx, err := r.db.Begin(ctx)
 	if err != nil {
@@ -39,7 +38,7 @@ func (r *authRepo) AddProfile(ctx context.Context, profile entity.Profile) error
 	}
 
 	if _, err = r.db.Exec(ctx, InsertProfile, profile.Username, profile.Password, profile.Role); err != nil {
-		if err = tx.Rollback(ctx); err != nil {
+		if err := tx.Rollback(ctx); err != nil {
 			return convertErrorPostgres(err)
 		}
 		return convertErrorPostgres(err)
@@ -58,8 +57,8 @@ func (r *authRepo) UpdateProfile(ctx context.Context, profile entity.Profile) er
 		return convertErrorPostgres(err)
 	}
 
-	if _, err := r.db.Exec(ctx, UpdateProfile, profile.Username, profile.Password, profile.Role, profile.ID); err != nil {
-		if err = tx.Rollback(ctx); err != nil {
+	if _, err = r.db.Exec(ctx, UpdateProfile, profile.Username, profile.Password, profile.Role, profile.ID); err != nil {
+		if err := tx.Rollback(ctx); err != nil {
 			return convertErrorPostgres(err)
 		}
 		return convertErrorPostgres(err)
@@ -72,10 +71,10 @@ func (r *authRepo) UpdateProfile(ctx context.Context, profile entity.Profile) er
 	return nil
 }
 
-// login post
 func (r *authRepo) GetProfile(ctx context.Context, username string) (*entity.Profile, error) {
 	profile := &entity.Profile{}
-	if err := r.db.QueryRow(ctx, SelectProfileByUsername, username).Scan(&profile.ID, &profile.Username, &profile.Password); err != nil {
+	if err := r.db.QueryRow(ctx, SelectProfileByUsername, username).
+		Scan(&profile.ID, &profile.Username, &profile.Password); err != nil {
 		return nil, convertErrorPostgres(err)
 	}
 	return profile, nil
@@ -83,7 +82,8 @@ func (r *authRepo) GetProfile(ctx context.Context, username string) (*entity.Pro
 
 func (r *authRepo) GetProfileByID(ctx context.Context, id int) (*entity.Profile, error) {
 	profile := &entity.Profile{}
-	if err := r.db.QueryRow(ctx, SelectProfileByID, id).Scan(&profile.ID, &profile.Username, &profile.Password); err != nil {
+	if err := r.db.QueryRow(ctx, SelectProfileByID, id).
+		Scan(&profile.ID, &profile.Username, &profile.Password); err != nil {
 		return nil, convertErrorPostgres(err)
 	}
 	return profile, nil

@@ -21,9 +21,8 @@ func convertErrorRedis(err error) error {
 	return &errPkg.InternalError{Message: err.Error(), Layer: string(errPkg.Repo)}
 }
 
-// login post
-func (s *authRepo) AddSession(ctx context.Context, session *entity.Session) error {
-	res := s.sessionStorage.SetNX(ctx, session.Key, session.UserID, time.Duration(session.Expires.Sub(time.Now().UTC())))
+func (r *authRepo) AddSession(ctx context.Context, session *entity.Session) error {
+	res := r.sessionStorage.SetNX(ctx, session.Key, session.UserID, (session.Expires.Sub(time.Now().UTC())))
 
 	if err := res.Err(); err != nil {
 		return convertErrorRedis(err)
@@ -32,9 +31,8 @@ func (s *authRepo) AddSession(ctx context.Context, session *entity.Session) erro
 	return nil
 }
 
-// auth mw
-func (s *authRepo) GetSessionByKey(ctx context.Context, key string) (*entity.Session, error) {
-	res := s.sessionStorage.Get(ctx, key)
+func (r *authRepo) GetSessionByKey(ctx context.Context, key string) (*entity.Session, error) {
+	res := r.sessionStorage.Get(ctx, key)
 
 	if err := res.Err(); err != nil {
 		return nil, convertErrorRedis(err)
@@ -50,9 +48,8 @@ func (s *authRepo) GetSessionByKey(ctx context.Context, key string) (*entity.Ses
 	return sess, nil
 }
 
-// logout delete
-func (s *authRepo) DeleteSessionByKey(ctx context.Context, key string) error {
-	res := s.sessionStorage.Del(ctx, key)
+func (r *authRepo) DeleteSessionByKey(ctx context.Context, key string) error {
+	res := r.sessionStorage.Del(ctx, key)
 	if err := res.Err(); err != nil {
 		return convertErrorRedis(err)
 	}

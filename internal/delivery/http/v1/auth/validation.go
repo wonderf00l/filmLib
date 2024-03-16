@@ -42,7 +42,7 @@ func isValidCredentials(username, password string) error {
 	if err := isValidUsername(username); err != nil {
 		return err
 	}
-	if err := isValidPassword(username); err != nil {
+	if err := isValidPassword(password); err != nil {
 		return err
 	}
 	return nil

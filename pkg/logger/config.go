@@ -1,17 +1,8 @@
 package logger
 
 import (
-	"flag"
-
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
-)
-
-var (
-	TimeKey             = "timestamp"
-	LogEncoding         = flag.String("logenc", "json", "preferred logging format")
-	LogOutputPaths      = flag.String("log", "stdout,access.log", "file paths to write logging output to")
-	LogErrorOutputPaths = flag.String("logerror", "stderr,error.log", "path to write internal logger errors to.")
 )
 
 type Option func(*zap.Config)

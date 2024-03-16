@@ -20,11 +20,11 @@ func NewRouter() Router {
 }
 
 type HandlersHTTP struct {
-	auth auth.AuthHandlerHTTP
+	auth auth.HandlerHTTP
 }
 
 func (r Router) RegisterRoute(h HandlersHTTP, log *zap.SugaredLogger, authService authService.Service, roleService role.Service) {
-	r.Mux.Use(delivery.RecoverMiddleware, delivery.LoggingMiddleware(log))
+	r.Mux.Use( /*delivery.RecoverMiddleware,*/ delivery.LoggingMiddleware(log))
 
 	authMW := delivery.AuthMiddleware(authService)
 	_ = delivery.CheckRoleMiddleware(roleService)

@@ -9,17 +9,17 @@ import (
 	service "github.com/wonderf00l/filmLib/internal/service/auth"
 )
 
-type AuthHandlerHTTP struct {
+type HandlerHTTP struct {
 	serv service.Service
 }
 
-func New(s service.Service) AuthHandlerHTTP {
-	return AuthHandlerHTTP{serv: s}
+func New(s service.Service) HandlerHTTP {
+	return HandlerHTTP{serv: s}
 }
 
-func (h *AuthHandlerHTTP) Signup(w http.ResponseWriter, r *http.Request) {
-	if contentType := r.Header.Get("Content-Type"); contentType != delivery.ApplicationJson {
-		delivery.ResponseError(w, r, &delivery.InvalidContentTypeError{PreferredType: delivery.ApplicationJson})
+func (h *HandlerHTTP) Signup(w http.ResponseWriter, r *http.Request) {
+	if contentType := r.Header.Get("Content-Type"); contentType != delivery.ApplicationJSON {
+		delivery.ResponseError(w, r, &delivery.InvalidContentTypeError{PreferredType: delivery.ApplicationJSON})
 		return
 	}
 
@@ -36,16 +36,18 @@ func (h *AuthHandlerHTTP) Signup(w http.ResponseWriter, r *http.Request) {
 	}
 
 	profile, roleToken := signupDataDeliveryToService(data)
+
 	if err := h.serv.Signup(r.Context(), profile, roleToken); err != nil {
+
 		delivery.ResponseError(w, r, err)
 	} else if err = delivery.ResponseOk(http.StatusOK, w, "registered profile successfully", nil); err != nil {
 		delivery.ResponseError(w, r, err)
 	}
 }
 
-func (h *AuthHandlerHTTP) Login(w http.ResponseWriter, r *http.Request) {
-	if contentType := r.Header.Get("Content-Type"); contentType != delivery.ApplicationJson {
-		delivery.ResponseError(w, r, &delivery.InvalidContentTypeError{PreferredType: delivery.ApplicationJson})
+func (h *HandlerHTTP) Login(w http.ResponseWriter, r *http.Request) {
+	if contentType := r.Header.Get("Content-Type"); contentType != delivery.ApplicationJSON {
+		delivery.ResponseError(w, r, &delivery.InvalidContentTypeError{PreferredType: delivery.ApplicationJSON})
 		return
 	}
 
@@ -69,7 +71,7 @@ func (h *AuthHandlerHTTP) Login(w http.ResponseWriter, r *http.Request) {
 	}
 
 	cookie := &http.Cookie{
-		Name:     delivery.CookieKey,
+		Name:     delivery.CookieName,
 		Value:    session.Key,
 		HttpOnly: true,
 		Path:     "/",
@@ -77,12 +79,12 @@ func (h *AuthHandlerHTTP) Login(w http.ResponseWriter, r *http.Request) {
 	}
 	http.SetCookie(w, cookie)
 
-	if err := delivery.ResponseOk(http.StatusOK, w, "authenticated successfully", nil); err != nil {
+	if err = delivery.ResponseOk(http.StatusOK, w, "authenticated successfully", nil); err != nil {
 		delivery.ResponseError(w, r, err)
 	}
 }
 
-func (h *AuthHandlerHTTP) Logout(w http.ResponseWriter, r *http.Request) {
+func (h *HandlerHTTP) Logout(w http.ResponseWriter, r *http.Request) {
 	sessKey, ok := r.Context().Value(delivery.CookieKey).(string)
 	if !ok {
 		delivery.ResponseError(w, r, &delivery.MiddlewareNotSetError{MWTypes: []delivery.MiddlewareType{delivery.AuthMW}})
@@ -94,7 +96,7 @@ func (h *AuthHandlerHTTP) Logout(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	cookie, _ := r.Cookie(delivery.CookieKey)
+	cookie, _ := r.Cookie(delivery.CookieName)
 	cookie.Expires = time.Now().UTC().AddDate(0, -1, 0)
 	http.SetCookie(w, cookie)
 
@@ -103,9 +105,9 @@ func (h *AuthHandlerHTTP) Logout(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func (h *AuthHandlerHTTP) UpdateProfileData(w http.ResponseWriter, r *http.Request) {
-	if contentType := r.Header.Get("Content-Type"); contentType != delivery.ApplicationJson {
-		delivery.ResponseError(w, r, &delivery.InvalidContentTypeError{PreferredType: delivery.ApplicationJson})
+func (h *HandlerHTTP) UpdateProfileData(w http.ResponseWriter, r *http.Request) {
+	if contentType := r.Header.Get("Content-Type"); contentType != delivery.ApplicationJSON {
+		delivery.ResponseError(w, r, &delivery.InvalidContentTypeError{PreferredType: delivery.ApplicationJSON})
 		return
 	}
 
@@ -141,7 +143,7 @@ func (h *AuthHandlerHTTP) UpdateProfileData(w http.ResponseWriter, r *http.Reque
 		updatedProfile.Password = profile.Password
 	}
 
-	if err := h.serv.UpdateProfileData(r.Context(), updatedProfile, newRoleToken); err != nil {
+	if err = h.serv.UpdateProfileData(r.Context(), updatedProfile, newRoleToken); err != nil {
 		delivery.ResponseError(w, r, err)
 	} else if err = delivery.ResponseOk(http.StatusOK, w, "Updated profile data successfully", nil); err != nil {
 		delivery.ResponseError(w, r, err)

@@ -20,11 +20,15 @@ type Middleware func(http.Handler) http.Handler
 
 type MiddlewareType string
 
+type ctxKey uint8
+
 const (
-	CookieKey = "sess_key"
-	UserIDKey = "user_id"
-	loggerKey = "logger"
-	roleKey   = "role"
+	CookieKey ctxKey = iota + 1
+	UserIDKey
+	loggerKey
+	roleKey
+
+	CookieName = "sess_id"
 
 	AuthMW MiddlewareType = "auth"
 )
@@ -102,7 +106,7 @@ func ctxWithAuthParams(ctx context.Context, sessKey string, userID int) context.
 func AuthMiddleware(s auth.Service) Middleware {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			if cookie, err := r.Cookie(CookieKey); err == nil {
+			if cookie, err := r.Cookie(CookieName); err == nil {
 				if time.Now().Before(cookie.Expires) {
 					ResponseError(w, r, &AuthCookieExpiredError{})
 					return

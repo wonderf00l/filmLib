@@ -11,7 +11,7 @@ import (
 // general http delivery errors
 
 const (
-	ApplicationJson = "application/json"
+	ApplicationJSON = "application/json"
 )
 
 type AuthCookieExpiredError struct{}
@@ -100,7 +100,7 @@ func (e *MissingBodyParamsError) Type() errPkg.Type {
 	return errPkg.ErrInvalidInput
 }
 
-func getCodeStatusHttp(err error) (ErrCode string, httpStatus int) {
+func getCodeStatusHTTP(err error) (errCode string, httpStatus int) {
 	var declaredErr errPkg.DeclaredError
 	if errors.As(err, &declaredErr) {
 		switch declaredErr.Type() {

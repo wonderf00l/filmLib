@@ -41,8 +41,10 @@ func ResponseOk(statusCode int, w http.ResponseWriter, message string, body any)
 	return err
 }
 
-func ResponseError(w http.ResponseWriter, r *http.Request, err error) {
+func ResponseError(w http.ResponseWriter, r *http.Request, serviceError error) {
 	serviceLogger, err := getLoggerFromCtx(r.Context())
+
+	fmt.Println("LOGGER: ", serviceLogger, err)
 
 	var defaultLogging bool
 	if err != nil {
@@ -50,10 +52,10 @@ func ResponseError(w http.ResponseWriter, r *http.Request, err error) {
 		log.Println("response error: use default logging, reason - ", err.Error())
 	}
 
-	code, status := getCodeStatusHttp(err)
+	code, status := getCodeStatusHTTP(serviceError)
 	var msg string
 	if status == http.StatusInternalServerError {
-		warnLogMsg := fmt.Sprintf("unexpected application error: %s, URL - %s, METHOD - %s\n", err.Error(), r.URL.String(), r.Method)
+		warnLogMsg := fmt.Sprintf("unexpected application error: %s, URL - %s, METHOD - %s", serviceError.Error(), r.URL.String(), r.Method)
 		if defaultLogging {
 			log.Println(warnLogMsg)
 		} else {
@@ -61,13 +63,13 @@ func ResponseError(w http.ResponseWriter, r *http.Request, err error) {
 		}
 		msg = "internal error occured"
 	} else {
-		logMsg := fmt.Sprintf("got declared error %s, URL - %s, METHOD - %s\n", err.Error(), r.URL.String(), r.Method)
+		logMsg := fmt.Sprintf("got declared error: %s, URL - %s, METHOD - %s", serviceError.Error(), r.URL.String(), r.Method)
 		if defaultLogging {
 			log.Println(logMsg)
 		} else {
 			serviceLogger.Infoln(logMsg)
 		}
-		msg = err.Error()
+		msg = serviceError.Error()
 	}
 
 	res := errorResponseJSON{

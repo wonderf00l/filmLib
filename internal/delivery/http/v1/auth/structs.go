@@ -5,7 +5,7 @@ import entity "github.com/wonderf00l/filmLib/internal/entity/auth"
 type signupData struct {
 	Username  *string `json:"username" example:"newbie123"`
 	Password  *string `json:"password" example:"helloWorld"`
-	RoleToken *string `json:"role_token" example:"admToken"`
+	RoleToken *string `json:"role_token" example:"123"`
 }
 
 func (d *signupData) Validate() error {

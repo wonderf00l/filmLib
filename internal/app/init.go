@@ -11,6 +11,13 @@ import (
 	"go.uber.org/zap"
 )
 
+var (
+	timeKey             = "timestamp"
+	logEncoding         = flag.String("logenc", "json", "preferred logging format")
+	logOutputPaths      = flag.String("log", "stdout,access.log", "file paths to write logging output to")
+	logErrorOutputPaths = flag.String("logerror", "stderr,error.log", "path to write internal logger errors to.")
+)
+
 func Init() (*zap.SugaredLogger, *configs.Configs, error) {
 	flag.Parse()
 
@@ -35,10 +42,10 @@ func Init() (*zap.SugaredLogger, *configs.Configs, error) {
 	}
 
 	serviceLogger, err := logger.New(logger.NewConfig(
-		logger.ConfigureTimeKey(logger.TimeKey),
-		logger.ConfigureEncoding(*logger.LogEncoding),
-		logger.ConfigureOutput(strings.Split(*logger.LogOutputPaths, ",")),
-		logger.ConfigureErrorOutput(strings.Split(*logger.LogErrorOutputPaths, ",")),
+		logger.ConfigureTimeKey(timeKey),
+		logger.ConfigureEncoding(*logEncoding),
+		logger.ConfigureOutput(strings.Split(*logOutputPaths, ",")),
+		logger.ConfigureErrorOutput(strings.Split(*logErrorOutputPaths, ",")),
 	))
 	if err != nil {
 		return nil, nil, &initError{inner: fmt.Errorf("create logger: %w", err)}

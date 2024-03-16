@@ -4,6 +4,9 @@ import (
 	"context"
 	"crypto/rand"
 	"crypto/sha256"
+	"fmt"
+	"io"
+	"strings"
 	"time"
 
 	entity "github.com/wonderf00l/filmLib/internal/entity/auth"
@@ -17,8 +20,13 @@ func (s *authService) assignProfileData(ctx context.Context, profile *entity.Pro
 	}
 	profile.Password = string(hashedPassword)
 
+	r := strings.NewReader(roleToken)
 	hash := sha256.New()
-	profile.Role = uint8(s.roleManager.AssignRole(ctx, string(hash.Sum([]byte(roleToken)))))
+	if _, err := io.Copy(hash, r); err != nil {
+		return err
+	}
+
+	profile.Role = uint8(s.roleManager.AssignRole(ctx, fmt.Sprintf("%x", hash.Sum(nil))))
 	return nil
 }
 

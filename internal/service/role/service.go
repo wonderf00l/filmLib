@@ -17,11 +17,11 @@ type roleService struct {
 	repo         repository.Repository
 }
 
-// echo '123' | grep sha256sum
+// echo 'admToken' | sha256sum
 func New(repo repository.Repository) *roleService {
 	return &roleService{
 		tokenRoleMap: map[string]entity.Role{
-			"181210f8f9c779c26da1d9b2075bde0127302ee0e3fca38c9a83f5b1dd8e5d3b": entity.Administrator,
+			"fbb89c5d1d266c5b573d69c50a56ae95ff472d43683e9ca75ddfbb5b1c098af5": entity.Administrator,
 		},
 		repo: repo,
 	}
