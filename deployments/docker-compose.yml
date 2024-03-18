@@ -1,0 +1,59 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:latest
+    container_name: filmLibPG
+    env_file:
+      - ../.env
+    volumes:
+      - ../db/migrations:/docker-entrypoint-initdb.d
+      - 'postgres_storage:/var/lib/postgresql/data'
+    ports:
+      - 5433:5432
+    healthcheck:
+      test: ["CMD", "pg_isready"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 15s
+      
+  redis:
+    image: redis:latest
+    container_name: filmLibRedis
+    volumes:
+      - ../redis.conf:/usr/local/etc/redis/redis.conf
+      - 'redis_storage:/data'
+    command: redis-server /usr/local/etc/redis/redis.conf
+    ports:
+        - 6379:6379
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 15s
+
+  app:
+    build: 
+      context: ./..
+      dockerfile: deployments/Dockerfile
+    container_name: filmLibApp
+    env_file:
+     - ../.env
+    environment:
+      - POSTGRES_HOST=postgres
+      - POSTGRES_PORT=5432
+      - REDIS_HOST=redis
+    depends_on:
+      postgres:
+        condition: 'service_healthy'
+      redis:
+        condition: 'service_healthy'
+    ports:
+    - 8080:8080
+ 
+    
+volumes:
+  postgres_storage: {}
+  redis_storage: {}
