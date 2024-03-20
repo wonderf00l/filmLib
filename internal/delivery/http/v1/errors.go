@@ -14,16 +14,6 @@ const (
 	ApplicationJSON = "application/json"
 )
 
-type AuthCookieExpiredError struct{}
-
-func (e *AuthCookieExpiredError) Error() string {
-	return "auth cookie is expired"
-}
-
-func (e *AuthCookieExpiredError) Type() errPkg.Type {
-	return errPkg.ErrNoAuth
-}
-
 type NoAuthCookieError struct{}
 
 func (e *NoAuthCookieError) Error() string {

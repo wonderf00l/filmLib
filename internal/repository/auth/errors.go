@@ -25,7 +25,7 @@ func (e *ProfileNotFoundError) Type() errPkg.Type {
 type SessionNotFoundError struct{}
 
 func (e *SessionNotFoundError) Error() string {
-	return "no such session"
+	return "user session wasn't found"
 }
 
 func (e *SessionNotFoundError) Type() errPkg.Type {

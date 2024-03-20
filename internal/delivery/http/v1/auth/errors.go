@@ -6,12 +6,17 @@ import (
 	errPkg "github.com/wonderf00l/filmLib/internal/errors"
 )
 
+const (
+	usernameMinLen, usernameMaxLen = 4, 50
+	passMinLen, passMaxLen         = 8, 50
+)
+
 type invalidPasswordLengthError struct {
-	pass string
+	got int
 }
 
 func (e *invalidPasswordLengthError) Error() string {
-	return fmt.Sprintf("%s - invalid password length: need [8:50]\n", e.pass)
+	return fmt.Sprintf("invalid password length: need [%d:%d], got - %d", passMinLen, passMaxLen, e.got)
 }
 
 func (e *invalidPasswordLengthError) Type() errPkg.Type {
@@ -30,10 +35,12 @@ func (e *invalidPasswordContentError) Type() errPkg.Type {
 	return errPkg.ErrInvalidInput
 }
 
-type invalidUsernameLengthError struct{}
+type invalidUsernameLengthError struct {
+	got int
+}
 
 func (e *invalidUsernameLengthError) Error() string {
-	return "invalid username length: need [4:50]"
+	return fmt.Sprintf("invalid username length: need [%d:%d], got - %d", usernameMinLen, usernameMaxLen, e.got)
 }
 
 func (e *invalidUsernameLengthError) Type() errPkg.Type {
@@ -65,7 +72,7 @@ type passwordsDontMatchError struct {
 }
 
 func (e *passwordsDontMatchError) Error() string {
-	return fmt.Sprintf("%s - %s, passwords don't match\n", e.pass1, e.pass2)
+	return fmt.Sprintf("%s - %s, passwords don't match", e.pass1, e.pass2)
 }
 
 func (e *passwordsDontMatchError) Type() errPkg.Type {

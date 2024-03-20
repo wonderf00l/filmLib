@@ -5,12 +5,13 @@ import (
 	"errors"
 	"time"
 
-	"github.com/go-redis/redis"
+	"github.com/redis/go-redis/v9"
 	entity "github.com/wonderf00l/filmLib/internal/entity/auth"
 	errPkg "github.com/wonderf00l/filmLib/internal/errors"
 )
 
 func convertErrorRedis(err error) error {
+
 	switch {
 	case errors.Is(err, redis.Nil):
 		return &SessionNotFoundError{}

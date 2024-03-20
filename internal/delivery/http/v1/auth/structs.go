@@ -10,10 +10,10 @@ type signupData struct {
 
 func (d *signupData) Validate() error {
 	if d.Username == nil {
-		return &invalidUsernameLengthError{}
+		return &invalidUsernameLengthError{got: 0}
 	}
 	if d.Password == nil {
-		return &invalidPasswordLengthError{pass: ""}
+		return &invalidPasswordLengthError{got: 0}
 	}
 
 	if err := isValidCredentials(*d.Username, *d.Password); err != nil {
@@ -41,10 +41,10 @@ type loginData struct {
 
 func (d *loginData) Validate() error {
 	if d.Username == nil {
-		return &invalidUsernameLengthError{}
+		return &invalidUsernameLengthError{got: 0}
 	}
 	if d.Password == nil {
-		return &invalidPasswordLengthError{}
+		return &invalidPasswordLengthError{got: 0}
 	}
 
 	if err := isValidCredentials(*d.Username, *d.Password); err != nil {
@@ -91,7 +91,7 @@ func (d *updateData) Validate() error {
 	}
 
 	if d.NewPassword != nil && d.RepeatedNewPassword == nil {
-		return &invalidPasswordLengthError{pass: ""}
+		return &invalidPasswordLengthError{got: 0}
 	}
 
 	if d.NewPassword != nil && *d.NewPassword != *d.RepeatedNewPassword {

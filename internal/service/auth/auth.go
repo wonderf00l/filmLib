@@ -4,6 +4,7 @@ import (
 	"context"
 	"crypto/rand"
 	"crypto/sha256"
+	"encoding/base64"
 	"fmt"
 	"io"
 	"strings"
@@ -60,14 +61,14 @@ func (s *authService) CreateSessionForUser(ctx context.Context, username, passwo
 		return nil, err
 	}
 
-	cookieString := make([]byte, cookieStringLen)
-	_, err = rand.Read(cookieString)
+	sessKey := make([]byte, sessionKeyLen)
+	_, err = rand.Read(sessKey)
 	if err != nil {
 		return nil, err
 	}
 
 	session := &entity.Session{
-		Key:     string(cookieString),
+		Key:     base64.StdEncoding.EncodeToString(sessKey),
 		UserID:  profile.ID,
 		Expires: time.Now().UTC().Add(sessionLifeTime),
 	}

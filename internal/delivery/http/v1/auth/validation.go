@@ -6,7 +6,7 @@ import (
 
 func isValidUsername(username string) error {
 	if len(username) < 4 || len(username) > 50 {
-		return &invalidUsernameLengthError{}
+		return &invalidUsernameLengthError{got: len(username)}
 	}
 	for _, r := range username {
 		if !(unicode.IsNumber(r) || unicode.IsLetter(r)) {
@@ -18,7 +18,7 @@ func isValidUsername(username string) error {
 
 func isValidPassword(password string) error {
 	if len(password) < 8 || len(password) > 50 {
-		return &invalidPasswordLengthError{pass: password}
+		return &invalidPasswordLengthError{got: len(password)}
 	}
 
 	wasUpper := false

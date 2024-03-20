@@ -10,7 +10,7 @@ import (
 )
 
 const (
-	cookieStringLen = 16
+	sessionKeyLen   = 16
 	sessionLifeTime = 24 * 30 * time.Hour
 )
 

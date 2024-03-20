@@ -22,7 +22,6 @@ CREATE TABLE IF NOT EXISTS profile (
 	CONSTRAINT profile_username_uniq UNIQUE (username),
     FOREIGN KEY (profile_role) REFERENCES role (id) ON DELETE CASCADE
 );
-INSERT INTO profile (username, password, profile_role) VALUES ('admin', 'admin', 1);
 
 CREATE TYPE sex AS ENUM ('male', 'female');
 

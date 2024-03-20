@@ -107,12 +107,7 @@ func AuthMiddleware(s auth.Service) Middleware {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			if cookie, err := r.Cookie(CookieName); err == nil {
-				if time.Now().Before(cookie.Expires) {
-					ResponseError(w, r, &AuthCookieExpiredError{})
-					return
-				}
-
-				session, err := s.GetUserSession(r.Context(), cookie.Name)
+				session, err := s.GetUserSession(r.Context(), cookie.Value)
 				if err != nil {
 					ResponseError(w, r, err)
 					return

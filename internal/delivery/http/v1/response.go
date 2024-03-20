@@ -44,8 +44,6 @@ func ResponseOk(statusCode int, w http.ResponseWriter, message string, body any)
 func ResponseError(w http.ResponseWriter, r *http.Request, serviceError error) {
 	serviceLogger, err := getLoggerFromCtx(r.Context())
 
-	fmt.Println("LOGGER: ", serviceLogger, err)
-
 	var defaultLogging bool
 	if err != nil {
 		defaultLogging = true
