@@ -11,13 +11,13 @@ type responseJSON struct {
 	Status  string      `json:"status" example:"ok"`
 	Message string      `json:"message" example:"authorized successfully"`
 	Body    interface{} `json:"body"`
-}
+} // @name responseJSON
 
 type errorResponseJSON struct {
 	Status  string `json:"status" example:"error"`
 	Message string `json:"message" example:"Error description"`
 	Code    string `json:"code" example:"no_auth"`
-}
+} // @name errorResponseJSON
 
 func setContentTypeJSON(w http.ResponseWriter) {
 	w.Header().Set("Content-Type", "application/json")

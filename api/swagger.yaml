@@ -1,0 +1,212 @@
+basePath: /api/v1
+definitions:
+  errorResponseJSON:
+    properties:
+      code:
+        example: no_auth
+        type: string
+      message:
+        example: Error description
+        type: string
+      status:
+        example: error
+        type: string
+    type: object
+  responseJSON:
+    properties:
+      body: {}
+      message:
+        example: authorized successfully
+        type: string
+      status:
+        example: ok
+        type: string
+    type: object
+host: localhost:8080
+info:
+  contact: {}
+  description: API for films and actors library
+  title: FilmLib API
+  version: "1.0"
+paths:
+  /api/v1/auth/login:
+    post:
+      consumes:
+      - application/json
+      description: User login, creating new session
+      parameters:
+      - description: Profile username
+        example: clicker123
+        in: body
+        name: username
+        required: true
+        schema:
+          type: string
+      - description: Profile password
+        example: helloWorld
+        in: body
+        name: password
+        required: true
+        schema:
+          type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          headers:
+            sess_key:
+              description: Auth cookie with new valid session id(base64)
+              type: string
+          schema:
+            $ref: '#/definitions/responseJSON'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/errorResponseJSON'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/errorResponseJSON'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/errorResponseJSON'
+      tags:
+      - Auth
+  /api/v1/auth/logout:
+    delete:
+      description: User logout, session deletion
+      parameters:
+      - description: Cookie with session key
+        example: k5qmqj507SejnpwJd%2FeO2Q%3D%3D
+        in: header
+        name: sess_key
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          headers:
+            Session-id:
+              description: Auth cookie with expired session id
+              type: string
+          schema:
+            $ref: '#/definitions/responseJSON'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/errorResponseJSON'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/errorResponseJSON'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/errorResponseJSON'
+      tags:
+      - Auth
+  /api/v1/auth/signup:
+    post:
+      consumes:
+      - application/json
+      description: Creating new profile - user registration
+      parameters:
+      - description: profile username
+        example: clicker123
+        in: body
+        name: username
+        required: true
+        schema:
+          type: string
+      - description: profile password
+        example: verysafePass
+        in: body
+        name: password
+        required: true
+        schema:
+          type: string
+      - description: token for activating specific role(admin token in example)
+        example: admToken
+        in: body
+        name: role_token
+        schema:
+          type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/responseJSON'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/errorResponseJSON'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/errorResponseJSON'
+      tags:
+      - Auth
+  /api/v1/auth/update:
+    put:
+      consumes:
+      - application/json
+      description: Update profile credentials
+      parameters:
+      - description: New profile username
+        example: clicker123
+        in: body
+        name: new_username
+        schema:
+          type: string
+      - description: Old profile password for user verification
+        example: helloWorld
+        in: body
+        name: old_password
+        required: true
+        schema:
+          type: string
+      - description: New preferable password
+        example: helloWorldNew
+        in: body
+        name: new_password
+        schema:
+          type: string
+      - description: New preferable password repeated
+        example: helloWorldNew
+        in: body
+        name: new_password_repeated
+        schema:
+          type: string
+      - description: New role token for optional role change
+        example: moderatorToken
+        in: body
+        name: new_role_token
+        schema:
+          type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/responseJSON'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/errorResponseJSON'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/errorResponseJSON'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/errorResponseJSON'
+      tags:
+      - Auth
+swagger: "2.0"

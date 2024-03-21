@@ -17,6 +17,21 @@ func New(s service.Service) HandlerHTTP {
 	return HandlerHTTP{serv: s}
 }
 
+//	@Description	Creating new profile - user registration
+//	@Tags			Auth
+//
+//	@Accept			json
+//	@Produce		json
+//
+//	@Param			username	body		string	true	"profile username"												example(clicker123)
+//	@Param			password	body		string	true	"profile password"												example(verysafePass)
+//	@Param			role_token	body		string	false	"token for activating specific role(admin token in example)"	example(admToken)
+//
+//	@Success		200			{object}	responseJSON
+//	@Failure		400			{object}	errorResponseJSON
+//	@Failure		500			{object}	errorResponseJSON
+//
+//	@Router			/api/v1/auth/signup [post]
 func (h *HandlerHTTP) Signup(w http.ResponseWriter, r *http.Request) {
 	if contentType := r.Header.Get("Content-Type"); contentType != delivery.ApplicationJSON {
 		delivery.ResponseError(w, r, &delivery.InvalidContentTypeError{PreferredType: delivery.ApplicationJSON})
@@ -45,6 +60,23 @@ func (h *HandlerHTTP) Signup(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+//	@Description	User login, creating new session
+//	@Tags			Auth
+//
+//	@Accept			json
+//	@Produce		json
+//
+//	@Param			username	body		string	true	"Profile username"	example(clicker123)
+//	@Param			password	body		string	true	"Profile password"	example(helloWorld)
+//
+//	@Success		200			{object}	responseJSON
+//	@Failure		400			{object}	errorResponseJSON
+//	@Failure		401			{object}	errorResponseJSON
+//	@Failure		500			{object}	errorResponseJSON
+//
+//	@Header			200			{string}	sess_key	"Auth cookie with new valid session id(base64)"
+//
+//	@Router			/api/v1/auth/login [post]
 func (h *HandlerHTTP) Login(w http.ResponseWriter, r *http.Request) {
 	if contentType := r.Header.Get("Content-Type"); contentType != delivery.ApplicationJSON {
 		delivery.ResponseError(w, r, &delivery.InvalidContentTypeError{PreferredType: delivery.ApplicationJSON})
@@ -84,6 +116,21 @@ func (h *HandlerHTTP) Login(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+//	@Description	User logout, session deletion
+//	@Tags			Auth
+//
+//	@Produce		json
+//
+//	@Param			sess_key	header		string	false	"Cookie with session key"	example(k5qmqj507SejnpwJd%2FeO2Q%3D%3D)
+//
+//	@Success		200			{object}	responseJSON
+//	@Failure		400			{object}	errorResponseJSON
+//	@Failure		401			{object}	errorResponseJSON
+//	@Failure		500			{object}	errorResponseJSON
+//
+//	@Header			200			{string}	Session-id	"Auth cookie with expired session id"
+//
+//	@Router			/api/v1/auth/logout [delete]
 func (h *HandlerHTTP) Logout(w http.ResponseWriter, r *http.Request) {
 	sessKey, ok := r.Context().Value(delivery.CookieKey).(string)
 	if !ok {
@@ -105,6 +152,24 @@ func (h *HandlerHTTP) Logout(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+//	@Description	Update profile credentials
+//	@Tags			Auth
+//
+//	@Accept			json
+//	@Produce		json
+//
+//	@Param			new_username			body		string	false	"New profile username"							example(clicker123)
+//	@Param			old_password			body		string	true	"Old profile password for user verification"	example(helloWorld)
+//	@Param			new_password			body		string	false	"New preferable password"						example(helloWorldNew)
+//	@Param			new_password_repeated	body		string	false	"New preferable password repeated"				example(helloWorldNew)
+//	@Param			new_role_token			body		string	false	"New role token for optional role change"		example(moderatorToken)
+//
+//	@Success		200						{object}	responseJSON
+//	@Failure		400						{object}	errorResponseJSON
+//	@Failure		401						{object}	errorResponseJSON
+//	@Failure		500						{object}	errorResponseJSON
+//
+//	@Router			/api/v1/auth/update [put]
 func (h *HandlerHTTP) UpdateProfileData(w http.ResponseWriter, r *http.Request) {
 	if contentType := r.Header.Get("Content-Type"); contentType != delivery.ApplicationJSON {
 		delivery.ResponseError(w, r, &delivery.InvalidContentTypeError{PreferredType: delivery.ApplicationJSON})

@@ -40,13 +40,6 @@ func getLoggerFromCtx(ctx context.Context) (*zap.SugaredLogger, error) {
 	return nil, errors.New("get logger from ctx: logger not found")
 }
 
-/*
-	recover
-	logging - log + provide logger
-	auth - check session + provide sessKey, userID or no auth
-	role - check role - ok or noAccess
-*/
-
 func RecoverMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		defer func() {
@@ -91,11 +84,6 @@ func LoggingMiddleware(serviceLogger *zap.SugaredLogger) Middleware {
 		})
 	}
 }
-
-// extract cookie
-// extract sessKey
-// go to storage
-// no auth or provide data to ctx
 
 func ctxWithAuthParams(ctx context.Context, sessKey string, userID int) context.Context {
 	withParams := context.WithValue(ctx, CookieKey, sessKey)

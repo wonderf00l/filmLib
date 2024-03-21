@@ -8,6 +8,9 @@ import (
 	"github.com/wonderf00l/filmLib/internal/delivery/http/v1/auth"
 	authService "github.com/wonderf00l/filmLib/internal/service/auth"
 
+	httpSwagger "github.com/swaggo/http-swagger"
+	_ "github.com/wonderf00l/filmLib/api"
+
 	"github.com/wonderf00l/filmLib/internal/service/role"
 )
 
@@ -24,12 +27,14 @@ type HandlersHTTP struct {
 }
 
 func (r Router) RegisterRoute(h HandlersHTTP, log *zap.SugaredLogger, authService authService.Service, roleService role.Service) {
-	r.Mux.Use( /*delivery.RecoverMiddleware,*/ delivery.LoggingMiddleware(log))
+	r.Mux.Use(delivery.RecoverMiddleware, delivery.LoggingMiddleware(log))
 
 	authMW := delivery.AuthMiddleware(authService)
 	_ = delivery.CheckRoleMiddleware(roleService)
 
 	r.Mux.Route("/api/v1", func(r chi.Router) {
+		r.Get("/docs/*", httpSwagger.WrapHandler)
+
 		r.Route("/auth", func(r chi.Router) {
 			r.Post("/signup", h.auth.Signup)
 			r.Post("/login", h.auth.Login)
