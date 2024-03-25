@@ -20,6 +20,7 @@ type Service interface {
 	CheckCredentialsByUsername(ctx context.Context, username, password string) (*entity.Profile, error)
 	UpdateProfileData(ctx context.Context, profile entity.Profile, roleToken string) error
 	CreateSessionForUser(ctx context.Context, username, password string) (*entity.Session, error)
+	GetProfileDataByUserID(ctx context.Context, userID int) (*entity.Profile, error)
 	GetUserSession(ctx context.Context, key string) (*entity.Session, error)
 	Logout(ctx context.Context, sessKey string) error
 }

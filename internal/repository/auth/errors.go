@@ -2,32 +2,32 @@ package auth
 
 import errPkg "github.com/wonderf00l/filmLib/internal/errors"
 
-type ProfileAlreadyExistsError struct{}
+type profileAlreadyExistsError struct{}
 
-func (e *ProfileAlreadyExistsError) Error() string {
+func (e *profileAlreadyExistsError) Error() string {
 	return "such profile already exists"
 }
 
-func (e *ProfileAlreadyExistsError) Type() errPkg.Type {
+func (e *profileAlreadyExistsError) Type() errPkg.Type {
 	return errPkg.ErrAlreadyExists
 }
 
-type ProfileNotFoundError struct{}
+type profileNotFoundError struct{}
 
-func (e *ProfileNotFoundError) Error() string {
+func (e *profileNotFoundError) Error() string {
 	return "such profile doesn't exist"
 }
 
-func (e *ProfileNotFoundError) Type() errPkg.Type {
+func (e *profileNotFoundError) Type() errPkg.Type {
 	return errPkg.ErrNotFound
 }
 
-type SessionNotFoundError struct{}
+type sessionNotFoundError struct{}
 
-func (e *SessionNotFoundError) Error() string {
+func (e *sessionNotFoundError) Error() string {
 	return "user session wasn't found"
 }
 
-func (e *SessionNotFoundError) Type() errPkg.Type {
+func (e *sessionNotFoundError) Type() errPkg.Type {
 	return errPkg.ErrNoAuth
 }

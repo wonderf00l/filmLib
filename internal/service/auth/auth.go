@@ -86,7 +86,7 @@ func (s *authService) CheckCredentialsByUsername(ctx context.Context, username, 
 	}
 
 	if err = bcrypt.CompareHashAndPassword([]byte(profile.Password), []byte(password)); err != nil {
-		return nil, &InvalidPasswordError{}
+		return nil, &invalidPasswordError{}
 	}
 
 	return profile, nil
@@ -99,7 +99,7 @@ func (s *authService) CheckCredentialsByUserID(ctx context.Context, userID int, 
 	}
 
 	if err = bcrypt.CompareHashAndPassword([]byte(profile.Password), []byte(password)); err != nil {
-		return nil, &InvalidPasswordError{}
+		return nil, &invalidPasswordError{}
 	}
 
 	return profile, nil
@@ -111,6 +111,14 @@ func (s *authService) GetUserSession(ctx context.Context, key string) (*entity.S
 		return nil, err
 	}
 	return sess, nil
+}
+
+func (s *authService) GetProfileDataByUserID(ctx context.Context, userID int) (*entity.Profile, error) {
+	profile, err := s.repo.GetProfileByID(ctx, userID)
+	if err != nil {
+		return nil, err
+	}
+	return profile, nil
 }
 
 func (s *authService) Logout(ctx context.Context, sessKey string) error {

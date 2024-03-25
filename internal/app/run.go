@@ -9,11 +9,15 @@ import (
 	"github.com/wonderf00l/filmLib/internal/configs"
 	"go.uber.org/zap"
 
+	actorRepository "github.com/wonderf00l/filmLib/internal/repository/actor"
 	authRepository "github.com/wonderf00l/filmLib/internal/repository/auth"
 	roleRepository "github.com/wonderf00l/filmLib/internal/repository/role"
+
+	actorService "github.com/wonderf00l/filmLib/internal/service/actor"
 	authService "github.com/wonderf00l/filmLib/internal/service/auth"
 	roleService "github.com/wonderf00l/filmLib/internal/service/role"
 
+	actorDelivery "github.com/wonderf00l/filmLib/internal/delivery/http/v1/actor"
 	authDelivery "github.com/wonderf00l/filmLib/internal/delivery/http/v1/auth"
 )
 
@@ -44,15 +48,19 @@ func Run(ctx context.Context, logger *zap.SugaredLogger, cfgs *configs.Configs) 
 
 	authRepo := authRepository.New(pool, redisCl)
 	roleRepo := roleRepository.New(pool)
+	actorRepo := actorRepository.New(pool)
 
 	roleService := roleService.New(roleRepo)
 	authService := authService.New(authRepo, roleService)
+	actorService := actorService.New(actorRepo)
 
 	authHandler := authDelivery.New(authService)
+	actorHandler := actorDelivery.New(actorService)
 
 	router := NewRouter()
 	router.RegisterRoute(HandlersHTTP{
-		auth: authHandler,
+		auth:  authHandler,
+		actor: actorHandler,
 	}, logger, authService, roleService)
 
 	wg := sync.WaitGroup{}

@@ -16,7 +16,7 @@ import (
 func convertErrorPostgres(err error) error {
 	switch {
 	case errors.Is(err, pgx.ErrNoRows):
-		return &ProfileNotFoundError{}
+		return &profileNotFoundError{}
 	case errors.Is(err, context.DeadlineExceeded):
 		return &errPkg.TimeoutExceededError{}
 	}
@@ -25,7 +25,7 @@ func convertErrorPostgres(err error) error {
 	if errors.As(err, &pgErr) {
 		switch pgErr.SQLState() {
 		case strconv.Itoa(repo.PostgresUniqueViolation):
-			return &ProfileAlreadyExistsError{}
+			return &profileAlreadyExistsError{}
 		}
 	}
 	return &errPkg.InternalError{Message: err.Error(), Layer: string(errPkg.Repo)}
@@ -37,7 +37,7 @@ func (r *authRepo) AddProfile(ctx context.Context, profile entity.Profile) error
 		return convertErrorPostgres(err)
 	}
 
-	if _, err = r.db.Exec(ctx, InsertProfile, profile.Username, profile.Password, profile.Role); err != nil {
+	if _, err = r.db.Exec(ctx, insertProfile, profile.Username, profile.Password, profile.Role); err != nil {
 		if err := tx.Rollback(ctx); err != nil {
 			return convertErrorPostgres(err)
 		}
@@ -57,7 +57,7 @@ func (r *authRepo) UpdateProfile(ctx context.Context, profile entity.Profile) er
 		return convertErrorPostgres(err)
 	}
 
-	if _, err = r.db.Exec(ctx, UpdateProfile, profile.Username, profile.Password, profile.Role, profile.ID); err != nil {
+	if _, err = r.db.Exec(ctx, updateProfile, profile.Username, profile.Password, profile.Role, profile.ID); err != nil {
 		if err := tx.Rollback(ctx); err != nil {
 			return convertErrorPostgres(err)
 		}
@@ -73,7 +73,7 @@ func (r *authRepo) UpdateProfile(ctx context.Context, profile entity.Profile) er
 
 func (r *authRepo) GetProfile(ctx context.Context, username string) (*entity.Profile, error) {
 	profile := &entity.Profile{}
-	if err := r.db.QueryRow(ctx, SelectProfileByUsername, username).
+	if err := r.db.QueryRow(ctx, selectProfileByUsername, username).
 		Scan(&profile.ID, &profile.Username, &profile.Password); err != nil {
 		return nil, convertErrorPostgres(err)
 	}
@@ -82,7 +82,7 @@ func (r *authRepo) GetProfile(ctx context.Context, username string) (*entity.Pro
 
 func (r *authRepo) GetProfileByID(ctx context.Context, id int) (*entity.Profile, error) {
 	profile := &entity.Profile{}
-	if err := r.db.QueryRow(ctx, SelectProfileByID, id).
+	if err := r.db.QueryRow(ctx, selectProfileByID, id).
 		Scan(&profile.ID, &profile.Username, &profile.Password); err != nil {
 		return nil, convertErrorPostgres(err)
 	}

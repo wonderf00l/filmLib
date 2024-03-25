@@ -8,7 +8,7 @@ type signupData struct {
 	RoleToken *string `json:"role_token" example:"123"`
 }
 
-func (d *signupData) Validate() error {
+func (d signupData) Validate() error {
 	if d.Username == nil {
 		return &invalidUsernameLengthError{got: 0}
 	}
@@ -39,7 +39,7 @@ type loginData struct {
 	Password *string `json:"password" example:"helloWorld"`
 }
 
-func (d *loginData) Validate() error {
+func (d loginData) Validate() error {
 	if d.Username == nil {
 		return &invalidUsernameLengthError{got: 0}
 	}
@@ -69,7 +69,7 @@ type updateData struct {
 	NewRoleToken        *string `json:"new_role_token"`
 }
 
-func (d *updateData) Validate() error {
+func (d updateData) Validate() error {
 	if d.OldPassword == nil {
 		return &noOldPasswordError{}
 	}

@@ -56,10 +56,11 @@ func (e *InvalidBodyError) Type() errPkg.Type {
 
 type InvalidQueryParamError struct {
 	Params map[string]string
+	Need   string
 }
 
 func (e *InvalidQueryParamError) Error() string {
-	return fmt.Sprintf("invalid query params: %v", e.Params)
+	return fmt.Sprintf("invalid query params: %v, provide %s", e.Params, e.Need)
 }
 
 func (e *InvalidQueryParamError) Type() errPkg.Type {

@@ -17,21 +17,21 @@ func New(s service.Service) HandlerHTTP {
 	return HandlerHTTP{serv: s}
 }
 
-//	@Description	Creating new profile - user registration
-//	@Tags			Auth
+// @Description	Creating new profile - user registration
+// @Tags			Auth
 //
-//	@Accept			json
-//	@Produce		json
+// @Accept			json
+// @Produce		json
 //
-//	@Param			username	body		string	true	"profile username"												example(clicker123)
-//	@Param			password	body		string	true	"profile password"												example(verysafePass)
-//	@Param			role_token	body		string	false	"token for activating specific role(admin token in example)"	example(admToken)
+// @Param			username	body		string	true	"profile username"												example(clicker123)
+// @Param			password	body		string	true	"profile password"												example(verysafePass)
+// @Param			role_token	body		string	false	"token for activating specific role(admin token in example)"	example(admToken)
 //
-//	@Success		200			{object}	responseJSON
-//	@Failure		400			{object}	errorResponseJSON
-//	@Failure		500			{object}	errorResponseJSON
+// @Success		200			{object}	responseJSON
+// @Failure		400			{object}	errorResponseJSON
+// @Failure		500			{object}	errorResponseJSON
 //
-//	@Router			/api/v1/auth/signup [post]
+// @Router			/api/v1/auth/signup [post]
 func (h *HandlerHTTP) Signup(w http.ResponseWriter, r *http.Request) {
 	if contentType := r.Header.Get("Content-Type"); contentType != delivery.ApplicationJSON {
 		delivery.ResponseError(w, r, &delivery.InvalidContentTypeError{PreferredType: delivery.ApplicationJSON})
@@ -53,30 +53,29 @@ func (h *HandlerHTTP) Signup(w http.ResponseWriter, r *http.Request) {
 	profile, roleToken := signupDataDeliveryToService(data)
 
 	if err := h.serv.Signup(r.Context(), profile, roleToken); err != nil {
-
 		delivery.ResponseError(w, r, err)
 	} else if err = delivery.ResponseOk(http.StatusOK, w, "registered profile successfully", nil); err != nil {
 		delivery.ResponseError(w, r, err)
 	}
 }
 
-//	@Description	User login, creating new session
-//	@Tags			Auth
+// @Description	User login, creating new session
+// @Tags			Auth
 //
-//	@Accept			json
-//	@Produce		json
+// @Accept			json
+// @Produce		json
 //
-//	@Param			username	body		string	true	"Profile username"	example(clicker123)
-//	@Param			password	body		string	true	"Profile password"	example(helloWorld)
+// @Param			username	body		string	true	"Profile username"	example(clicker123)
+// @Param			password	body		string	true	"Profile password"	example(helloWorld)
 //
-//	@Success		200			{object}	responseJSON
-//	@Failure		400			{object}	errorResponseJSON
-//	@Failure		401			{object}	errorResponseJSON
-//	@Failure		500			{object}	errorResponseJSON
+// @Success		200			{object}	responseJSON
+// @Failure		400			{object}	errorResponseJSON
+// @Failure		401			{object}	errorResponseJSON
+// @Failure		500			{object}	errorResponseJSON
 //
-//	@Header			200			{string}	sess_key	"Auth cookie with new valid session id(base64)"
+// @Header			200			{string}	sess_key	"Auth cookie with new valid session id(base64)"
 //
-//	@Router			/api/v1/auth/login [post]
+// @Router			/api/v1/auth/login [post]
 func (h *HandlerHTTP) Login(w http.ResponseWriter, r *http.Request) {
 	if contentType := r.Header.Get("Content-Type"); contentType != delivery.ApplicationJSON {
 		delivery.ResponseError(w, r, &delivery.InvalidContentTypeError{PreferredType: delivery.ApplicationJSON})
@@ -116,23 +115,23 @@ func (h *HandlerHTTP) Login(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-//	@Description	User logout, session deletion
-//	@Tags			Auth
+// @Description	User logout, session deletion
+// @Tags			Auth
 //
-//	@Produce		json
+// @Produce		json
 //
-//	@Param			sess_key	header		string	false	"Cookie with session key"	example(k5qmqj507SejnpwJd%2FeO2Q%3D%3D)
+// @Param			sess_key	header		string	false	"Cookie with session key"	example(k5qmqj507SejnpwJd%2FeO2Q%3D%3D)
 //
-//	@Success		200			{object}	responseJSON
-//	@Failure		400			{object}	errorResponseJSON
-//	@Failure		401			{object}	errorResponseJSON
-//	@Failure		500			{object}	errorResponseJSON
+// @Success		200			{object}	responseJSON
+// @Failure		400			{object}	errorResponseJSON
+// @Failure		401			{object}	errorResponseJSON
+// @Failure		500			{object}	errorResponseJSON
 //
-//	@Header			200			{string}	Session-id	"Auth cookie with expired session id"
+// @Header			200			{string}	Session-id	"Auth cookie with expired session id"
 //
-//	@Router			/api/v1/auth/logout [delete]
+// @Router			/api/v1/auth/logout [delete]
 func (h *HandlerHTTP) Logout(w http.ResponseWriter, r *http.Request) {
-	sessKey, ok := r.Context().Value(delivery.CookieKey).(string)
+	sessKey, ok := r.Context().Value(delivery.SessKey).(string)
 	if !ok {
 		delivery.ResponseError(w, r, &delivery.MiddlewareNotSetError{MWTypes: []delivery.MiddlewareType{delivery.AuthMW}})
 		return
@@ -152,24 +151,24 @@ func (h *HandlerHTTP) Logout(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-//	@Description	Update profile credentials
-//	@Tags			Auth
+// @Description	Update profile credentials
+// @Tags			Auth
 //
-//	@Accept			json
-//	@Produce		json
+// @Accept			json
+// @Produce		json
 //
-//	@Param			new_username			body		string	false	"New profile username"							example(clicker123)
-//	@Param			old_password			body		string	true	"Old profile password for user verification"	example(helloWorld)
-//	@Param			new_password			body		string	false	"New preferable password"						example(helloWorldNew)
-//	@Param			new_password_repeated	body		string	false	"New preferable password repeated"				example(helloWorldNew)
-//	@Param			new_role_token			body		string	false	"New role token for optional role change"		example(moderatorToken)
+// @Param			new_username			body		string	false	"New profile username"							example(clicker123)
+// @Param			old_password			body		string	true	"Old profile password for user verification"	example(helloWorld)
+// @Param			new_password			body		string	false	"New preferable password"						example(helloWorldNew)
+// @Param			new_password_repeated	body		string	false	"New preferable password repeated"				example(helloWorldNew)
+// @Param			new_role_token			body		string	false	"New role token for optional role change"		example(moderatorToken)
 //
-//	@Success		200						{object}	responseJSON
-//	@Failure		400						{object}	errorResponseJSON
-//	@Failure		401						{object}	errorResponseJSON
-//	@Failure		500						{object}	errorResponseJSON
+// @Success		200						{object}	responseJSON
+// @Failure		400						{object}	errorResponseJSON
+// @Failure		401						{object}	errorResponseJSON
+// @Failure		500						{object}	errorResponseJSON
 //
-//	@Router			/api/v1/auth/update [put]
+// @Router			/api/v1/auth/update [put]
 func (h *HandlerHTTP) UpdateProfileData(w http.ResponseWriter, r *http.Request) {
 	if contentType := r.Header.Get("Content-Type"); contentType != delivery.ApplicationJSON {
 		delivery.ResponseError(w, r, &delivery.InvalidContentTypeError{PreferredType: delivery.ApplicationJSON})
@@ -207,10 +206,29 @@ func (h *HandlerHTTP) UpdateProfileData(w http.ResponseWriter, r *http.Request) 
 	if updatedProfile.Password == "" {
 		updatedProfile.Password = profile.Password
 	}
+	updatedProfile.ID = profile.ID
 
 	if err = h.serv.UpdateProfileData(r.Context(), updatedProfile, newRoleToken); err != nil {
 		delivery.ResponseError(w, r, err)
 	} else if err = delivery.ResponseOk(http.StatusOK, w, "Updated profile data successfully", nil); err != nil {
+		delivery.ResponseError(w, r, err)
+	}
+}
+
+func (h *HandlerHTTP) GetProfileData(w http.ResponseWriter, r *http.Request) {
+	userID, ok := r.Context().Value(delivery.UserIDKey).(int)
+	if !ok {
+		delivery.ResponseError(w, r, &delivery.MiddlewareNotSetError{MWTypes: []delivery.MiddlewareType{delivery.AuthMW}})
+		return
+	}
+
+	profile, err := h.serv.GetProfileDataByUserID(r.Context(), userID)
+	if err != nil {
+		delivery.ResponseError(w, r, err)
+		return
+	}
+
+	if err = delivery.ResponseOk(http.StatusOK, w, "Got profile data successfully", profile); err != nil {
 		delivery.ResponseError(w, r, err)
 	}
 }

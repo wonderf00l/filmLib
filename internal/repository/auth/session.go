@@ -14,7 +14,7 @@ func convertErrorRedis(err error) error {
 
 	switch {
 	case errors.Is(err, redis.Nil):
-		return &SessionNotFoundError{}
+		return &sessionNotFoundError{}
 	case errors.Is(err, context.DeadlineExceeded):
 		return &errPkg.TimeoutExceededError{}
 	}

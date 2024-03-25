@@ -23,10 +23,10 @@ type MiddlewareType string
 type ctxKey uint8
 
 const (
-	CookieKey ctxKey = iota + 1
+	SessKey ctxKey = iota + 1
 	UserIDKey
 	loggerKey
-	roleKey
+	rolesKey
 
 	CookieName = "sess_id"
 
@@ -45,7 +45,7 @@ func RecoverMiddleware(next http.Handler) http.Handler {
 		defer func() {
 			if err := recover(); err != nil {
 				log.Printf("FATAL ERROR: RECOVERED FROM PANIC -> URL - %s, METHOD - %s\n", r.URL.String(), r.Method)
-				ResponseError(w, r, &errPkg.InternalError{})
+				ResponseError(w, r, &errPkg.InternalError{Message: "GOT PANIC", Layer: string(errPkg.Delivery)})
 			}
 		}()
 
@@ -86,7 +86,7 @@ func LoggingMiddleware(serviceLogger *zap.SugaredLogger) Middleware {
 }
 
 func ctxWithAuthParams(ctx context.Context, sessKey string, userID int) context.Context {
-	withParams := context.WithValue(ctx, CookieKey, sessKey)
+	withParams := context.WithValue(ctx, SessKey, sessKey)
 	withParams = context.WithValue(withParams, UserIDKey, userID)
 	return withParams
 }
@@ -110,10 +110,10 @@ func AuthMiddleware(s auth.Service) Middleware {
 	}
 }
 
-func SetRoleMiddleware(role entityRole.Role) Middleware {
+func SetRolesMiddleware(roles []entityRole.Role) Middleware {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			r = r.WithContext(context.WithValue(r.Context(), roleKey, role))
+			r = r.WithContext(context.WithValue(r.Context(), rolesKey, roles))
 			next.ServeHTTP(w, r)
 		})
 	}
@@ -122,10 +122,10 @@ func SetRoleMiddleware(role entityRole.Role) Middleware {
 // extract userID - ok or no MW
 // find role - role or no such user
 // check rights - ok or noAccess
-func CheckRoleMiddleware(s role.Service) Middleware {
+func CheckRolesMiddleware(s role.Service) Middleware {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			needRole, ok := r.Context().Value(roleKey).(entityRole.Role)
+			needRoles, ok := r.Context().Value(rolesKey).([]entityRole.Role)
 			if !ok {
 				next.ServeHTTP(w, r)
 				return
@@ -143,12 +143,29 @@ func CheckRoleMiddleware(s role.Service) Middleware {
 				return
 			}
 
-			if role != needRole {
-				ResponseError(w, r, &errPkg.InvalidRoleForActionError{Need: entityRole.RoleMap[needRole]})
+			if !contains(role, needRoles) {
+				ResponseError(w, r, &errPkg.InvalidRoleForActionError{Need: convert(needRoles)})
 				return
 			}
 
 			next.ServeHTTP(w, r)
 		})
 	}
+}
+
+func convert(roles []entityRole.Role) []string {
+	converted := make([]string, len(roles))
+	for i, r := range roles {
+		converted[i] = entityRole.RoleMap[r]
+	}
+	return converted
+}
+
+func contains(role entityRole.Role, roles []entityRole.Role) bool {
+	for _, r := range roles {
+		if role == r {
+			return true
+		}
+	}
+	return false
 }
