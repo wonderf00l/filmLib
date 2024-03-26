@@ -10,9 +10,7 @@ import (
 
 // general http delivery errors
 
-const (
-	ApplicationJSON = "application/json"
-)
+
 
 type NoAuthCookieError struct{}
 

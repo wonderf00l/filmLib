@@ -41,18 +41,10 @@ CREATE TABLE IF NOT EXISTS film (
 	description varchar(1000),
 	release_date date,
 	rating smallint CHECK (rating BETWEEN 0 and 10),
+    actors TEXT[],
 	created_at timestamptz NOT NULL DEFAULT now(),
 	updated_at timestamptz NOT NULL DEFAULT now(),
 	deleted_at timestamptz
-);
-
-CREATE TABLE IF NOT EXISTS film_actor (
-	film_id int NOT NULL,
-	actor_id int NOT NULL,
-	created_at timestamptz NOT NULL DEFAULT now(),
-	PRIMARY KEY(film_id, actor_id),
-	FOREIGN KEY (film_id) REFERENCES film (id) ON DELETE CASCADE,
-	FOREIGN KEY (actor_id) REFERENCES actor (id) ON DELETE CASCADE
 );
 
 CREATE EXTENSION IF NOT EXISTS moddatetime;

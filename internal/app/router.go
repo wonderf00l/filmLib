@@ -7,6 +7,7 @@ import (
 	delivery "github.com/wonderf00l/filmLib/internal/delivery/http/v1"
 	"github.com/wonderf00l/filmLib/internal/delivery/http/v1/actor"
 	"github.com/wonderf00l/filmLib/internal/delivery/http/v1/auth"
+	"github.com/wonderf00l/filmLib/internal/delivery/http/v1/film"
 	authService "github.com/wonderf00l/filmLib/internal/service/auth"
 
 	httpSwagger "github.com/swaggo/http-swagger"
@@ -27,6 +28,7 @@ func NewRouter() Router {
 type HandlersHTTP struct {
 	auth  auth.HandlerHTTP
 	actor actor.HandlerHTTP
+	film  film.HandlerHTTP
 }
 
 func (r Router) RegisterRoute(h HandlersHTTP, log *zap.SugaredLogger, authService authService.Service, roleService role.Service) {
@@ -59,6 +61,13 @@ func (r Router) RegisterRoute(h HandlersHTTP, log *zap.SugaredLogger, authServic
 					Delete("/delete", h.actor.DeleteActor)
 			})
 			r.Get("/get", h.actor.GetActor)
+		})
+
+		r.Route("/film", func(r chi.Router) {
+			r.With(authMW).Group(func(r chi.Router) {
+				r.With(delivery.SetRolesMiddleware([]roleEntity.Role{roleEntity.Administrator}), roleMW).
+					Post("/create", h.film.CreateFilm)
+			})
 		})
 	})
 }

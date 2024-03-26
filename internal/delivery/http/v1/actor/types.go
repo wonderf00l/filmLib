@@ -4,10 +4,9 @@ import (
 	"time"
 
 	entity "github.com/wonderf00l/filmLib/internal/entity/actor"
-)
+	errPkg "github.com/wonderf00l/filmLib/internal/errors"
 
-const (
-	layoutISO = "2006-01-02"
+	delivery "github.com/wonderf00l/filmLib/internal/delivery/http/v1"
 )
 
 type actorData struct {
@@ -26,9 +25,9 @@ func actorDataDeliveryToService(d actorData) (*entity.Actor, error) {
 		actor.Gender = *d.Gender
 	}
 	if d.DateOfBirth != nil {
-		date, err := time.Parse(layoutISO, *d.DateOfBirth)
+		date, err := time.Parse(delivery.LayoutISO, *d.DateOfBirth)
 		if err != nil {
-			return nil, &invalidTimeFormatError{}
+			return nil, &errPkg.InvalidTimeFormatError{}
 		}
 		actor.DateOfBirth = date
 	}
@@ -47,7 +46,7 @@ func getActorServiceToDelivery(a entity.Actor) getActorData {
 		ID:          a.ID,
 		Name:        a.Name,
 		Gender:      a.Gender,
-		DateOfBirth: a.DateOfBirth.Format(layoutISO),
+		DateOfBirth: a.DateOfBirth.Format(delivery.LayoutISO),
 	}
 }
 
@@ -61,9 +60,9 @@ func updateActorDeliveryToService(d actorData) (map[string]any, error) {
 		updFields[entity.GenderAttr] = *d.Gender
 	}
 	if d.DateOfBirth != nil {
-		date, err := time.Parse(layoutISO, *d.DateOfBirth)
+		date, err := time.Parse(delivery.LayoutISO, *d.DateOfBirth)
 		if err != nil {
-			return nil, &invalidTimeFormatError{}
+			return nil, &errPkg.InvalidTimeFormatError{}
 		}
 		updFields[entity.DateAttr] = date
 	}

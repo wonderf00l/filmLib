@@ -11,7 +11,6 @@ import (
 )
 
 func convertErrorRedis(err error) error {
-
 	switch {
 	case errors.Is(err, redis.Nil):
 		return &sessionNotFoundError{}

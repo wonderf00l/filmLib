@@ -32,7 +32,7 @@ func convertErrorPostgres(err error) error {
 
 func (r *roleRepo) GetUserRole(ctx context.Context, userID int) (entity.Role, error) {
 	role := entity.Role(0)
-	if err := r.db.QueryRow(ctx, SelectUserRole, userID).Scan(&role); err != nil {
+	if err := r.db.QueryRow(ctx, selectUserRole, userID).Scan(&role); err != nil {
 		return 0, convertErrorPostgres(err)
 	}
 	return role, nil

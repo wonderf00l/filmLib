@@ -11,14 +11,17 @@ import (
 
 	actorRepository "github.com/wonderf00l/filmLib/internal/repository/actor"
 	authRepository "github.com/wonderf00l/filmLib/internal/repository/auth"
+	filmRepository "github.com/wonderf00l/filmLib/internal/repository/film"
 	roleRepository "github.com/wonderf00l/filmLib/internal/repository/role"
 
 	actorService "github.com/wonderf00l/filmLib/internal/service/actor"
 	authService "github.com/wonderf00l/filmLib/internal/service/auth"
+	filmService "github.com/wonderf00l/filmLib/internal/service/film"
 	roleService "github.com/wonderf00l/filmLib/internal/service/role"
 
 	actorDelivery "github.com/wonderf00l/filmLib/internal/delivery/http/v1/actor"
 	authDelivery "github.com/wonderf00l/filmLib/internal/delivery/http/v1/auth"
+	filmDelivery "github.com/wonderf00l/filmLib/internal/delivery/http/v1/film"
 )
 
 var (
@@ -49,18 +52,22 @@ func Run(ctx context.Context, logger *zap.SugaredLogger, cfgs *configs.Configs) 
 	authRepo := authRepository.New(pool, redisCl)
 	roleRepo := roleRepository.New(pool)
 	actorRepo := actorRepository.New(pool)
+	filmRepo := filmRepository.New(pool)
 
 	roleService := roleService.New(roleRepo)
 	authService := authService.New(authRepo, roleService)
 	actorService := actorService.New(actorRepo)
+	filmService := filmService.New(filmRepo)
 
 	authHandler := authDelivery.New(authService)
 	actorHandler := actorDelivery.New(actorService)
+	filmHandler := filmDelivery.New(filmService)
 
 	router := NewRouter()
 	router.RegisterRoute(HandlersHTTP{
 		auth:  authHandler,
 		actor: actorHandler,
+		film:  filmHandler,
 	}, logger, authService, roleService)
 
 	wg := sync.WaitGroup{}

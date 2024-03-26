@@ -59,6 +59,17 @@ func (e *InternalError) Error() string {
 	return fmt.Sprintf("Internal error occured. Message: '%s'. Layer: %s", e.Message, e.Layer)
 }
 
+type InvalidTimeFormatError struct {
+}
+
+func (e *InvalidTimeFormatError) Error() string {
+	return "invalid time format, should be yyyy-mm-dd"
+}
+
+func (e *InvalidTimeFormatError) Type() Type {
+	return ErrInvalidInput
+}
+
 type TimeoutExceededError struct {
 }
 
