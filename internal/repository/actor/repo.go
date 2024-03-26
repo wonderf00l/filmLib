@@ -7,10 +7,6 @@ import (
 	entity "github.com/wonderf00l/filmLib/internal/entity/actor"
 )
 
-const (
-	relationNamePostgres = "actor"
-)
-
 type Repository interface {
 	AddActorData(ctx context.Context, actor entity.Actor) error
 	GetActorData(ctx context.Context, actorID int) (*entity.Actor, error)

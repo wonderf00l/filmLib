@@ -3,7 +3,7 @@ definitions:
   errorResponseJSON:
     properties:
       code:
-        example: no_auth
+        example: err_code
         type: string
       message:
         example: Error description
@@ -16,7 +16,7 @@ definitions:
     properties:
       body: {}
       message:
-        example: authorized successfully
+        example: made action successfully
         type: string
       status:
         example: ok
@@ -29,6 +29,169 @@ info:
   title: FilmLib API
   version: "1.0"
 paths:
+  /api/v1/actor/create:
+    post:
+      consumes:
+      - application/json
+      description: Add information about new actor
+      parameters:
+      - description: name of the actor
+        example: Ryan Gosling
+        in: body
+        name: name
+        required: true
+        schema:
+          type: string
+      - description: gender of the actor
+        example: male
+        in: body
+        name: gender
+        required: true
+        schema:
+          type: string
+      - description: actor's date of birth
+        example: "2002-11-10"
+        in: body
+        name: date_of_bitrh
+        schema:
+          type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/responseJSON'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/errorResponseJSON'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/errorResponseJSON'
+      tags:
+      - Actor
+  /api/v1/actor/delete:
+    delete:
+      description: Delete information about existing actor
+      parameters:
+      - description: id of the actor to delete
+        in: query
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/responseJSON'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/errorResponseJSON'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/errorResponseJSON'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/errorResponseJSON'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/errorResponseJSON'
+      tags:
+      - Actor
+  /api/v1/actor/get:
+    get:
+      description: Get information about existing actor
+      parameters:
+      - description: id of the actor to get
+        in: query
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/responseJSON'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/errorResponseJSON'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/errorResponseJSON'
+      tags:
+      - Actor
+  /api/v1/actor/update:
+    put:
+      consumes:
+      - application/json
+      description: Update info about exising actor
+      parameters:
+      - description: ID of the actor to update
+        example: 2
+        in: body
+        name: id
+        required: true
+        schema:
+          type: integer
+      - description: New actor's name
+        example: Ryan Gosling
+        in: body
+        name: name
+        schema:
+          type: string
+      - description: New actor's gender
+        example: male
+        in: body
+        name: gender
+        schema:
+          type: string
+      - description: New actor's date of birth
+        example: "2001-02-02"
+        in: body
+        name: date_of_birth
+        schema:
+          type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/responseJSON'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/errorResponseJSON'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/errorResponseJSON'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/errorResponseJSON'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/errorResponseJSON'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/errorResponseJSON'
+      tags:
+      - Actor
   /api/v1/auth/login:
     post:
       consumes:

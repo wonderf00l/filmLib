@@ -11,6 +11,7 @@ const (
 )
 
 type actorData struct {
+	ID          *int    `json:"id,omitempty" example:"123"`
 	Name        *string `json:"name" example:"Ryan Gosling"`
 	Gender      *string `json:"gender" example:"male"`
 	DateOfBirth *string `json:"date_of_birth" example:"2006-01-02"`
@@ -50,18 +51,22 @@ func getActorServiceToDelivery(a entity.Actor) getActorData {
 	}
 }
 
-// func actorDataDeliveryToService(d actorData) map[string]any {
-// 	updFields := make(map[string]any, 3)
+func updateActorDeliveryToService(d actorData) (map[string]any, error) {
+	updFields := make(map[string]any, 3)
 
-// 	if d.Name != nil {
-// 		updFields["name"] = *d.Name
-// 	}
-// 	if d.Gender != nil {
-// 		updFields["gender"] = *d.Gender
-// 	}
-// 	if d.DateOfBirth != nil {
-// 		updFields["date_of_birth"] = *d.DateOfBirth
-// 	}
+	if d.Name != nil {
+		updFields[entity.NameAttr] = *d.Name
+	}
+	if d.Gender != nil {
+		updFields[entity.GenderAttr] = *d.Gender
+	}
+	if d.DateOfBirth != nil {
+		date, err := time.Parse(layoutISO, *d.DateOfBirth)
+		if err != nil {
+			return nil, &invalidTimeFormatError{}
+		}
+		updFields[entity.DateAttr] = date
+	}
 
-// 	return updFields
-// }
+	return updFields, nil
+}

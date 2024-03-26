@@ -51,8 +51,12 @@ func (r Router) RegisterRoute(h HandlersHTTP, log *zap.SugaredLogger, authServic
 
 		r.Route("/actor", func(r chi.Router) {
 			r.With(authMW).Group(func(r chi.Router) {
-				r.With(delivery.SetRolesMiddleware([]roleEntity.Role{roleEntity.Administrator}), roleMW).Post("/create", h.actor.CreateActor)
-				r.With(delivery.SetRolesMiddleware([]roleEntity.Role{roleEntity.Administrator}), roleMW).Delete("/delete", h.actor.DeleteActor)
+				r.With(delivery.SetRolesMiddleware([]roleEntity.Role{roleEntity.Administrator}), roleMW).
+					Post("/create", h.actor.CreateActor)
+				r.With(delivery.SetRolesMiddleware([]roleEntity.Role{roleEntity.Administrator}), roleMW).
+					Put("/update", h.actor.UpdateActorData)
+				r.With(delivery.SetRolesMiddleware([]roleEntity.Role{roleEntity.Administrator}), roleMW).
+					Delete("/delete", h.actor.DeleteActor)
 			})
 			r.Get("/get", h.actor.GetActor)
 		})

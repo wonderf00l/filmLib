@@ -10,7 +10,7 @@ import (
 type Service interface {
 	AddActor(ctx context.Context, actor entity.Actor) error
 	GetActor(ctx context.Context, actorID int) (*entity.Actor, error)
-	UpdateActorData(ctx context.Context, actorID int, updFields map[string]any) error
+	UpdateActorData(ctx context.Context, actorID int, updData UpdateActorData) error
 	DeleteActorData(ctx context.Context, actorID int) error
 }
 

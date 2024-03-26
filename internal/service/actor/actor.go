@@ -29,20 +29,17 @@ func (s *actorService) GetActor(ctx context.Context, actorID int) (*entity.Actor
 	return actor, nil
 }
 
-// name, gender can't be empty or "" - in delivery
-func (s *actorService) UpdateActorData(ctx context.Context, actorID int, updFields map[string]any) error {
+func (s *actorService) UpdateActorData(ctx context.Context, actorID int, updData UpdateActorData) error {
 	_, err := s.repo.GetActorData(ctx, actorID)
 	if err != nil {
 		return err
 	}
-	// if null --> ok no change --> set old
-	// проверка явного "" в delivery
-	// тогда тут "" это null --> перезапись --> неявно, полагаемся на валидацию delivery
-	// if updActor.DateOfBirth.IsZero() {
-	// 	updActor.DateOfBirth = actor.DateOfBirth
-	// }
 
-	if err := s.repo.UpdateActorData(ctx, actorID, updFields); err != nil {
+	if err := updData.Validate(); err != nil {
+		return err
+	}
+
+	if err := s.repo.UpdateActorData(ctx, actorID, updActorDataServiceToRepository(updData)); err != nil {
 		return err
 	}
 

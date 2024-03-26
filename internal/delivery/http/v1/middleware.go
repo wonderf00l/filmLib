@@ -119,9 +119,6 @@ func SetRolesMiddleware(roles []entityRole.Role) Middleware {
 	}
 }
 
-// extract userID - ok or no MW
-// find role - role or no such user
-// check rights - ok or noAccess
 func CheckRolesMiddleware(s role.Service) Middleware {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {

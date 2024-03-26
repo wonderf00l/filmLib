@@ -15,6 +15,10 @@ import (
 	sq "github.com/Masterminds/squirrel"
 )
 
+const (
+	relationNamePostgres = "actor"
+)
+
 func convertErrorPostgres(err error) error {
 	switch {
 	case errors.Is(err, pgx.ErrNoRows):

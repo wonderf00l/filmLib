@@ -12,3 +12,13 @@ func (e *invalidTimeFormatError) Error() string {
 func (e *invalidTimeFormatError) Type() errPkg.Type {
 	return errPkg.ErrInvalidInput
 }
+
+type actorIDnotProvidedError struct{}
+
+func (e *actorIDnotProvidedError) Error() string {
+	return "provide actor ID in JSON body for updating"
+}
+
+func (e *actorIDnotProvidedError) Type() errPkg.Type {
+	return errPkg.ErrInvalidInput
+}
